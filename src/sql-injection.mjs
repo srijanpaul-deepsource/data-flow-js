@@ -1,11 +1,11 @@
-// Cleaned up version of a real use-case requested by one of our customers. 
 const mysql = require("db-mysql");
+const options = require("./options")
 const http = require("http");
 
-let valTom; // skipcq: JS-0119 : irrelevant to this example (variables should be explicitly initialized).
-http.request("https://[redacted]", (res) => {
+let valTom; // skipcq (unrelated to the vulnerability)
+http.request(options, (res) => {
   res.on("data", (chunk) => {
-    valTom = chunk;
+    valTom = chunk; // <- taint starts here.
   });
 });
 
@@ -14,16 +14,9 @@ new mysql.Database({
   user: "user",
   password: "password",
   database: "test",
-}).connect(function (error) {
-
-  if (error) return;
-
-  const query =
-    `INSERT INTO Customers (CustomerName, ContactName) VALUES ('Tom',${valTom});`
-  
-  this.query(query).execute((err, output)  => {
-    if (err) return;
-    console.assert(output !== null)
-  });
+}).connect(function () {
+  // example callback passed to `execute`
+  function callback () { /*sample  */}
+  const query = `INSERT INTO Customers (CustomerName, ContactName) VALUES ('Tom', ${valTom})`; // <- propagates to DB Query
+  this.query(query).execute(callback); // <- taint reaches sink
 });
-
