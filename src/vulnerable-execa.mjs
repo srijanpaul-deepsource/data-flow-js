@@ -1,6 +1,5 @@
 const { command } = require("execa");
 import express from "express"
-const app = express()
 
 const exec = cmd => { command(cmd) }
 
@@ -9,4 +8,5 @@ const handler = (req) => {
   exec(cmd);
 }
 
+const app = express()
 app.get("foo", handler)

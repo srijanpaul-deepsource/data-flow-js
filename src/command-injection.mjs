@@ -20,17 +20,16 @@ app.get("/execute", (req) => {
   }
 })
 
-// Calls a function that calls another function
-function unsafeFunction(cmd, callback) {
-  if (typeof callback === "function") {
-    cp.exec(`${cmd} && echo 'done'!`, callback)
-  }
-}
-
 function calls_unsafeFunction(cmd) {
   const modifiedCmd = `ls && ${cmd}`;
   if (cmd) {
    unsafeFunction(modifiedCmd, console.log) 
+  }
+}
+
+function unsafeFunction(cmd, callback) {
+  if (typeof callback === "function") {
+    cp.exec(`${cmd} && echo 'done'!`, callback)
   }
 }
 
